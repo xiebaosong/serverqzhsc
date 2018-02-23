@@ -2,6 +2,18 @@ const SMSClient = require('@alicloud/sms-sdk');
 
 const crypto = require('crypto');
 
+const nodemailer = require('nodemailer');
+
+let transporter = nodemailer.createTransport({
+  host: 'smtp.163.com', //主机地址
+  port: 25, //端口
+  auth: {
+    user: '13411174697@163.com', //发件邮箱
+    pass: 'xbs123' //授权码  
+  }
+});
+
+
 class Utils {
   constructor () {}
 
@@ -30,6 +42,11 @@ class Utils {
     md5.update(o[field]);
 
     o[field] = md5.digest('hex');
+  }
+
+  //发邮件
+  sendEmail (options, fn) {
+    transporter.sendMail(options, fn);
   }
 
 }

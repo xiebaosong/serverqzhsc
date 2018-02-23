@@ -14,20 +14,22 @@ class RouteController {
 		//随机生成6位验证码
 		let time = new Date().getTime().toString();
 		let code = time.slice(time.length - 6);
-		res.send({code:code});
-		// req.query: 请求查询参数
-		// Utils.sendMessage(req.query.phone, code)
-		// 	.then((data) => {
-		//     let {Code} = data;
-		//     if (Code === 'OK') {
-		//        // 处理返回参数
-		//        res.json({code: code, msg: '发送短信验证码成功', status: 1});
+		// res.send({code:code});
+		
+		Utils.sendMessage(req.query.phone, code)
+			.then((data) => {
+				console.log(data)
+		    let {Code} = data;
+			    if (Code === 'OK') {
+			       // 处理返回参数
+			       res.json({code: code, msg: '发送短信验证码成功', status: 1});
 
-		//     }
-		// 		}, (err) => {
-		//     	console.log(err);
-		//     	res.json({msg: '发送短信验证码失败', status: 0});
-		// 	})
+			    }
+				}, (err) => {
+		    	console.log(err);
+		    	res.json({msg: '发送短信验证码失败', status: 0});
+			})
+		
 	}
 
 	//注册功能
@@ -96,46 +98,57 @@ class RouteController {
 
 	//手机修改密码
 	phoneModificationController(req,res){
+		let time = new Date().getTime().toString();
+		let code = time.slice(time.length - 6);
 		let sql=SQL.findOneSQL(req.body,'phone');
+		// res.send('数据返回了')
 		console.log(sql)
 		API.query(sql)
 		.then(function(result){
 			if (result[0].length == 1) {
-				Utils.addCrypto(req.body, 'repwd');
-				console.log(result)
-				// let updatesql = SQL.updateLoginpwdSQL(req.body, pwd);
-				res.send('xiexie')
-			}
-			
+				console.log(req.body.pwd)
+				Utils.addCrypto(req.body, 'pwd');
+				let updatesql = SQL.updateLoginpwdSQL(req.body);
+				API.query(updatesql)
+				.then(function(){
+					res.json(common.phoneModification.success);
+				})
+				.catch(err => {
+					res.json(common.phoneModification.info);
+				})	
+			}	
 		})
 		.catch(err => {
-				res.json(common.login.error);
+				res.json(common.phoneModification.error);
 		})
 
 	}
 
-
-	//邮箱修改密码
+	//验证邮箱是否绑定
 	emailcodeController (req, res) {
 		//随机生成6位验证码
 		let time = new Date().getTime().toString();
 		let code = time.slice(time.length - 6);
-		let sql = SQL.fineOneEmailSQL(req.query.email);
+		let sql = SQL.fineOneEmailSQL(req.body.email);
+		// res.send('服务器发回信息')
+		console.log(sql)
 		API.query(sql)
 			.then(result => {
+				console.log(result)
 				if (result[0].length == 1) {
 					let options = {
-						from: 'kangliuyong@126.com', //发件地址
-						to: req.query.email, //收件地址
+						from: '13411174697@163.com', //发件地址
+						to: req.body.email, //收件地址
 						subject: '修改密码', //主题标题
 						text: '验证码',
 						html: '<b>您的验证码是: ' + code + ',一切向您索取验证码都是骗子</b>' //邮件内容模板
 					};
+
 					Utils.sendEmail(options , () => {
-						res.send({msg: '验证码已发至您的邮箱, 请注意查收!', statusCode: 700, validCode: code});
+						res.send({msg: '验证码已发至您的邮箱, 请注意查收!', statusCode: 500, validCode: code});
 					})
 				} else {
-					res.json({msg: '该邮箱未被绑定', statusCode: 701})
+					res.json({msg: '该邮箱未被绑定', statusCode: 501})
 				}
 			})
 			.catch(err => {
@@ -143,13 +156,14 @@ class RouteController {
 			})
 	}
 
-	//修改密码
+	//邮箱修改密码
 	modifypwdController (req, res) {
 		Utils.addCrypto(req.body, 'pwd');
-		let sql = SQL.modifyPwdSQL(req.body);
+		let sql = SQL.emailUpdateLoginpwdSQL(req.body);
+		console.log(sql)
 		API.query(sql)
 			.then(result => {
-				res.json({msg: '修改密码成功', statusCode: 800});
+				res.json({msg: '修改密码成功', statusCode: 500});
 			})
 			.catch(err => {
 				res.send('出错啦');

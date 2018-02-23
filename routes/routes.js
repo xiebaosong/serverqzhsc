@@ -9,5 +9,9 @@ exports.routes = function (app) {
 	app.post('/login', RouteController.loginController);
 	//手机修改密码
 	app.post('/phoneModification', RouteController.phoneModificationController);
+	//验证邮箱
+	app.post('/emailcode', RouteController.emailcodeController);
+	//修改密码
+	app.post('/modifypwd', RouteController.modifypwdController);
 
 }

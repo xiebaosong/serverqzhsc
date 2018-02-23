@@ -48,5 +48,19 @@ module.exports = {
 			msg: '出错啦',
 			statusCode: 402
 		}
+	},
+	emailModification:{
+		success: {
+			msg: '修改密码成功',
+			statusCode: 500
+		},
+		info: {
+			msg: '修改密码失败，请再次修改',
+			statusCode: 501
+		},
+		error: {
+			msg: '出错啦',
+			statusCode: 502
+		}
 	}
 }
